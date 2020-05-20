@@ -4,7 +4,7 @@ on:
     paths-ignore:
   push:
     branches:
-      - master
+      - cas-235
 jobs:
   Build_and_run_cargo:
     name: Build and run cargo tests
@@ -68,5 +68,7 @@ jobs:
       - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_cli.js )
       - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_replica.js )
       - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_csi.js )
+      - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_csi_nbd.js )
+      - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_csi_iscsi.js )
       - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_nexus.js )
       - run: ( cd mayastor-test && ./node_modules/mocha/bin/mocha test_rebuild.js )

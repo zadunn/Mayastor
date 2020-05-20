@@ -261,7 +261,7 @@ fn get_iscsi_device_path(uuid: &str) -> Option<String> {
     static RE_TARGET: Lazy<regex::Regex> = Lazy::new(|| {
         regex::Regex::new(
             r"(?x)
-            (?P<ip>\d+.\d+.\d+.\d+):(?P<port>\d+),(?P<lun>\d+)\s+(?P<iqn>.*:\w+)-(?P<uuid>.*)
+            (?P<ip>\d+.\d+.\d+.\d+):(?P<port>\d+),(?P<lun>\d+)\s+(?P<iqn>iqn\.\d+-\d+\.io\.openebs:nexus)-(?P<uuid>.*)
             ",
         )
         .unwrap()
@@ -287,7 +287,9 @@ fn get_iscsi_device_path(uuid: &str) -> Option<String> {
 /// target matching the volume id has been mounted or None.
 pub fn iscsi_find(uuid: &str) -> Option<String> {
     if let Some(path) = get_iscsi_device_path(uuid) {
-        return Some(iscsi_realpath(path));
+        if wait_for_path_to_exist(path.as_str(), 0) {
+            return Some(iscsi_realpath(path));
+        }
     }
     None
 }
