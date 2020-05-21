@@ -5,14 +5,22 @@ use std::{env, path::Path, process::Command, thread, time};
 // For the container we set it using and environment variable,
 // typically this is the "/bin/mayastor-iscsiadm" script,
 // created by the mayastor image build scripts.
-// For development hosts just setting it to iscsiadm works.
+// For development && test environments setting it to iscsiadm works
+// as long as iscsiadm exists and mayastor has the right permissions
+// to execute iscsiadm.
 static ISCSIADM: Lazy<String> = Lazy::new(|| {
-    if env::var("ISCSIADM").is_err() {
-        debug!("defaulting to using iscsiadm");
-        "iscsiadm".to_string()
-    } else {
-        debug!("using {}", env::var("ISCSIADM").unwrap());
+    let mayastor_iscsiadm = "/bin/mayastor-iscsiadm";
+    if env::var("ISCSIADM").is_ok()
+        && which::which(env::var("ISCSIADM").unwrap().as_str()).is_ok()
+    {
+        debug!("Using {} for iscsiadm", env::var("ISCSIADM").unwrap());
         env::var("ISCSIADM").unwrap()
+    } else if which::which(mayastor_iscsiadm).is_ok() {
+        debug!("Using {} for iscsiadm", mayastor_iscsiadm);
+        mayastor_iscsiadm.to_string()
+    } else {
+        debug!("Using iscsiadm in PATH");
+        "iscsiadm".to_string()
     }
 });
 
